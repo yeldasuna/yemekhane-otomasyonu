@@ -1,0 +1,222 @@
+:root {
+  --bg: #f3f5f8;
+  --card: #ffffff;
+  --text: #182230;
+  --muted: #5b687a;
+  --line: #dce3ec;
+  --primary: #14532d;
+  --primary-hover: #0f3f22;
+  --danger: #b91c1c;
+  --warn-bg: #fef3c7;
+  --warn-text: #92400e;
+  --ok-bg: #dcfce7;
+  --ok-text: #166534;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.gizli { display: none !important; }
+
+.kapsayici {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.ust-bar {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.ust-bar h1 { margin: 0; font-size: 1.2rem; }
+
+.kullanici-ozet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.92rem;
+}
+
+.rozet {
+  background: #eef2f6;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.sekme-cubugu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.sekme-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sekme-btn.aktif {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.kart {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.kart h2, .kart h3 { margin-top: 0; }
+
+.filtre-satiri {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.alan {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 150px;
+  flex: 1 1 160px;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #fff;
+  color: var(--text);
+}
+
+button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) { background: var(--primary-hover); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.ikincil { background: #475569; }
+button.tehlike { background: var(--danger); }
+
+.mesaj {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.mesaj.ok { background: var(--ok-bg); color: var(--ok-text); }
+.mesaj.hata { background: #fee2e2; color: #991b1b; }
+.mesaj.uyari { background: var(--warn-bg); color: var(--warn-text); }
+
+.izgara {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.menu-karti {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  background: #fcfcfd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.yemek-liste { margin: 8px 0 0 0; padding-left: 18px; }
+.yemek-liste li { margin-bottom: 6px; }
+
+.etiket {
+  display: inline-block;
+  font-size: 0.76rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+.etiket.vej { background: var(--ok-bg); color: var(--ok-text); }
+.etiket.alerjen { background: var(--warn-bg); color: var(--warn-text); }
+
+.tablo-sar { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; white-space: nowrap; }
+th { background: #f8fafc; color: var(--muted); }
+
+.yemek-secim-kutu {
+  max-height: 190px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px;
+}
+
+.secim-satir {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86rem;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.secim-satir input { width: auto; }
+
+@media (max-width: 480px) {
+  .kapsayici { padding: 10px; }
+  .ust-bar { padding: 12px; }
+  .sekme-btn { flex: 1 1 calc(50% - 6px); text-align: center; padding: 8px 6px; font-size: 0.82rem; }
+  .izgara { grid-template-columns: 1fr; }
+}
