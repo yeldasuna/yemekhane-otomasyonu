@@ -71,12 +71,55 @@ class VeriKatmani {
         $og  = $pdo->query("SELECT id, ad, sira, son_saat, servis_baslangic, servis_bitis FROM ogunler ORDER BY sira")->fetchAll();
         $yem = $pdo->query("SELECT id, kategori_id, ad, kalori, vejetaryen FROM yemekler ORDER BY id")->fetchAll();
         $kat = $pdo->query("SELECT id, ad, sira FROM yemek_kategorileri ORDER BY sira")->fetchAll();
+        $alr = $pdo->query("SELECT id, ad FROM alerjenler ORDER BY id")->fetchAll();
         return [
             'yemekhaneler' => $yh,
             'ogunler'      => $og,
             'yemekler'     => $yem,
             'kategoriler'  => $kat,
+            'alerjenler'   => $alr,
         ];
+    }
+
+    public static function kullaniciAlerjenleriGetir(int $kullaniciId, bool $primary = false): array {
+        $pdo = $primary ? self::yazmaPdo() : self::okumaPdo();
+        $stmt = $pdo->prepare(
+            "SELECT a.id, a.ad
+             FROM kullanici_alerjenleri ka
+             JOIN alerjenler a ON a.id = ka.alerjen_id
+             WHERE ka.kullanici_id = ?
+             ORDER BY a.id ASC"
+        );
+        $stmt->execute([$kullaniciId]);
+        return $stmt->fetchAll();
+    }
+
+    public static function kullaniciAlerjenleriKaydet(int $kullaniciId, array $alerjenIdler): array {
+        $pdo = self::yazmaPdo();
+        $temizIdler = [];
+        foreach ($alerjenIdler as $aid) {
+            $id = (int)$aid;
+            if ($id > 0) {
+                $temizIdler[$id] = $id;
+            }
+        }
+        $pdo->beginTransaction();
+        try {
+            $pdo->prepare("DELETE FROM kullanici_alerjenleri WHERE kullanici_id = ?")->execute([$kullaniciId]);
+            if (!empty($temizIdler)) {
+                $ins = $pdo->prepare("INSERT INTO kullanici_alerjenleri (kullanici_id, alerjen_id) VALUES (?, ?)");
+                foreach ($temizIdler as $id) {
+                    $ins->execute([$kullaniciId, $id]);
+                }
+            }
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+        return self::kullaniciAlerjenleriGetir($kullaniciId, true);
     }
 
     public static function menuDetaySatirlari(?int $yemekhaneId = null, ?string $baslangicTarih = null, ?string $bitisTarih = null, ?int $ogunId = null): array {
@@ -147,6 +190,7 @@ class VeriKatmani {
                     r.menu_id,
                     r.durum,
                     r.ucret,
+                    COALESCE(r.porsiyon, 'tam') AS porsiyon,
                     r.olusturma,
                     r.kullanma_zamani,
                     r.iptal_zamani,
@@ -223,9 +267,10 @@ class VeriKatmani {
         return self::okumaPdo()->query($sql)->fetchAll();
     }
 
-    public static function spRezervasyonYap(int $kullaniciId, int $menuId): array {
-        $stmt = self::yazmaPdo()->prepare("CALL sp_rezervasyon_yap(?, ?)");
-        $stmt->execute([$kullaniciId, $menuId]);
+    public static function spRezervasyonYap(int $kullaniciId, int $menuId, string $porsiyon = 'tam'): array {
+        $porsiyon = strtolower(trim($porsiyon)) === 'yarim' ? 'yarim' : 'tam';
+        $stmt = self::yazmaPdo()->prepare("CALL sp_rezervasyon_yap(?, ?, ?)");
+        $stmt->execute([$kullaniciId, $menuId, $porsiyon]);
         $res = $stmt->fetch() ?: [];
         while ($stmt->nextRowset()) {}
         return $res;

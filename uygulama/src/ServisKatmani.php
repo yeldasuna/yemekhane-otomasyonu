@@ -28,8 +28,11 @@ class ServisKatmani {
         }
         $redis->expire($anahtar, 1800);
         $veri = json_decode($ham, true);
-        if (!is_array($veri) || empty($veri['kullanici_id'])) {
+        if (!is_array($veri) || empty($veri['id']) && empty($veri['kullanici_id'])) {
             return null;
+        }
+        if (empty($veri['kullanici_id']) && !empty($veri['id'])) {
+            $veri['kullanici_id'] = (int)$veri['id'];
         }
         $veri['token'] = $token;
         return $veri;
@@ -45,6 +48,7 @@ class ServisKatmani {
         }
 
         unset($kullanici['sifre_hash']);
+        $kullanici['kullanici_id'] = (int)$kullanici['id'];
         $token = bin2hex(random_bytes(24));
         $redis = VeriKatmani::redisBaglan();
         if ($redis) {
@@ -67,31 +71,64 @@ class ServisKatmani {
         }
     }
 
-    public static function menuOnbellekAnahtari(?int $yemekhaneId, ?string $baslangic, ?string $bitis, ?int $ogunId): string {
-        $y = $yemekhaneId ?: 'tumu';
-        $b = $baslangic ?: 'yok';
-        $s = $bitis ?: 'yok';
-        $o = $ogunId ?: 'tumu';
-        return "menu:{$y}:{$b}:{$s}:{$o}";
+    public static function gunSonuTtlSaniye(?string $tarih = null): int {
+        $bazTarih = ($tarih && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tarih))
+            ? $tarih
+            : date('Y-m-d');
+        $simdi = time();
+        $gunSonu = strtotime($bazTarih . ' 23:59:59');
+        if ($gunSonu === false || $gunSonu <= $simdi) {
+            return 60;
+        }
+        return max(60, $gunSonu - $simdi);
+    }
+
+    public static function menuOnbellekAnahtari(int $yemekhaneId, string $tarih, int $ogunId): string {
+        return "menu:{$yemekhaneId}:{$tarih}:{$ogunId}";
     }
 
     public static function menuleriGetirOnbellekli(?int $yemekhaneId, ?string $baslangic, ?string $bitis, ?int $ogunId = null): array {
-        $anahtar = self::menuOnbellekAnahtari($yemekhaneId, $baslangic, $bitis, $ogunId);
+        $tekGunTekMenu = ($yemekhaneId !== null && $yemekhaneId > 0
+            && $ogunId !== null && $ogunId > 0
+            && $baslangic !== null && $baslangic !== ''
+            && ($bitis === null || $bitis === '' || $bitis === $baslangic));
+
         $redis = VeriKatmani::redisBaglan();
-        if ($redis) {
-            $kayitli = $redis->get($anahtar);
-            if ($kayitli) {
-                $cozulen = json_decode($kayitli, true);
-                if (is_array($cozulen)) {
-                    return ['kaynak' => 'redis', 'data' => $cozulen];
+        if ($tekGunTekMenu) {
+            $anahtar = self::menuOnbellekAnahtari($yemekhaneId, $baslangic, $ogunId);
+            if ($redis) {
+                $kayitli = $redis->get($anahtar);
+                if ($kayitli) {
+                    $cozulen = json_decode($kayitli, true);
+                    if (is_array($cozulen)) {
+                        error_log("[REDIS-CACHE] HIT anahtar={$anahtar} kaynak=redis");
+                        return ['kaynak' => 'redis', 'anahtar' => $anahtar, 'data' => $cozulen];
+                    }
                 }
             }
+
+            $menuler = self::menuleriGrupla($yemekhaneId, $baslangic, $baslangic, $ogunId);
+            if ($redis) {
+                $ttl = self::gunSonuTtlSaniye($baslangic);
+                $redis->setex($anahtar, $ttl, json_encode($menuler, JSON_UNESCAPED_UNICODE));
+            }
+            error_log("[REDIS-CACHE] MISS anahtar={$anahtar} kaynak=mysql-replica");
+            return ['kaynak' => 'mysql-replica', 'anahtar' => $anahtar, 'data' => $menuler];
         }
 
         $menuler = self::menuleriGrupla($yemekhaneId, $baslangic, $bitis, $ogunId);
-        if ($redis) {
-            $redis->setex($anahtar, 300, json_encode($menuler, JSON_UNESCAPED_UNICODE));
+        if ($redis && !empty($menuler)) {
+            $gruplar = [];
+            foreach ($menuler as $m) {
+                $key = self::menuOnbellekAnahtari((int)$m['yemekhane_id'], (string)$m['tarih'], (int)$m['ogun_id']);
+                $gruplar[$key][] = $m;
+            }
+            foreach ($gruplar as $key => $parca) {
+                $tarihParca = explode(':', $key)[2] ?? null;
+                $redis->setex($key, self::gunSonuTtlSaniye($tarihParca), json_encode($parca, JSON_UNESCAPED_UNICODE));
+            }
         }
+        error_log("[MENU-SORGU] kaynak=mysql-replica");
         return ['kaynak' => 'mysql-replica', 'data' => $menuler];
     }
 
@@ -110,23 +147,30 @@ class ServisKatmani {
             $mid = (int)$s['menu_id'];
             if (!isset($menuler[$mid])) {
                 $dol = $dolulukMap[$mid] ?? [];
+                $ogunAd = (string)$s['ogun'];
+                $kahvaltiMi = (stripos($ogunAd, 'kahvalt') !== false || stripos($ogunAd, 'kahvalti') !== false);
+                $ogrFiyat = (float)$s['ogrenci_fiyati'];
+                $perFiyat = (float)$s['personel_fiyati'];
                 $menuler[$mid] = [
-                    'menu_id'         => $mid,
-                    'tarih'           => $s['tarih'],
-                    'yemekhane_id'    => (int)$s['yemekhane_id'],
-                    'yemekhane'       => $s['yemekhane'],
-                    'ogun_id'         => (int)$s['ogun_id'],
-                    'ogun'            => $s['ogun'],
-                    'ogun_sira'       => (int)$s['ogun_sira'],
-                    'rezervasyon_son' => $s['rezervasyon_son'],
-                    'ogrenci_fiyati'  => (float)$s['ogrenci_fiyati'],
-                    'personel_fiyati' => (float)$s['personel_fiyati'],
-                    'kapasite'        => isset($dol['kapasite']) ? (int)$dol['kapasite'] : null,
-                    'rezerve'         => isset($dol['rezerve']) ? (int)$dol['rezerve'] : null,
-                    'bos_yer'         => isset($dol['bos_yer']) ? (int)$dol['bos_yer'] : null,
-                    'doluluk_yuzde'   => isset($dol['doluluk_yuzde']) ? (float)$dol['doluluk_yuzde'] : null,
-                    'toplam_kalori'   => 0,
-                    'yemekler'        => [],
+                    'menu_id'             => $mid,
+                    'tarih'               => $s['tarih'],
+                    'yemekhane_id'        => (int)$s['yemekhane_id'],
+                    'yemekhane'           => $s['yemekhane'],
+                    'ogun_id'             => (int)$s['ogun_id'],
+                    'ogun'                => $ogunAd,
+                    'ogun_sira'           => (int)$s['ogun_sira'],
+                    'rezervasyon_son'     => $s['rezervasyon_son'],
+                    'ogrenci_fiyati'      => $ogrFiyat,
+                    'personel_fiyati'     => $perFiyat,
+                    'yarim_izinli'        => !$kahvaltiMi,
+                    'ogrenci_yarim_fiyat' => $kahvaltiMi ? null : round($ogrFiyat * 0.60, 2),
+                    'personel_yarim_fiyat'=> $kahvaltiMi ? null : round($perFiyat * 0.60, 2),
+                    'kapasite'            => isset($dol['kapasite']) ? (int)$dol['kapasite'] : null,
+                    'rezerve'             => isset($dol['rezerve']) ? (int)$dol['rezerve'] : null,
+                    'bos_yer'             => isset($dol['bos_yer']) ? (int)$dol['bos_yer'] : null,
+                    'doluluk_yuzde'       => isset($dol['doluluk_yuzde']) ? (float)$dol['doluluk_yuzde'] : null,
+                    'toplam_kalori'       => 0,
+                    'yemekler'            => [],
                 ];
             }
 
@@ -153,14 +197,21 @@ class ServisKatmani {
         if (!$redis) {
             return;
         }
+        if ($yemekhaneId && $yemekhaneId > 0 && $tarih && $tarih !== '' && $ogunId && $ogunId > 0) {
+            $anahtar = self::menuOnbellekAnahtari($yemekhaneId, $tarih, $ogunId);
+            $redis->del($anahtar);
+            error_log("[REDIS-CACHE] INVALIDATE anahtar={$anahtar}");
+            return;
+        }
         $keys = $redis->keys('menu:*');
         if (is_array($keys) && !empty($keys)) {
             $redis->del($keys);
+            error_log("[REDIS-CACHE] INVALIDATE adet=" . count($keys));
         }
     }
 
-    public static function rezervasyonYap(int $kullaniciId, int $menuId): array {
-        $sonuc = VeriKatmani::spRezervasyonYap($kullaniciId, $menuId);
+    public static function rezervasyonYap(int $kullaniciId, int $menuId, string $porsiyon = 'tam'): array {
+        $sonuc = VeriKatmani::spRezervasyonYap($kullaniciId, $menuId, $porsiyon);
         $guncel = VeriKatmani::kullaniciIdIleGetir($kullaniciId, true);
         return [
             'islem' => $sonuc,

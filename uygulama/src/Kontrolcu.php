@@ -52,7 +52,7 @@ class Kontrolcu {
                 $eposta = (string)($g['eposta'] ?? '');
                 $sifre = (string)($g['sifre'] ?? '');
                 if ($eposta === '' || $sifre === '') {
-                    $this->yanit(['success' => false, 'message' => 'E-posta ve ÅŸifre zorunludur.'], 400);
+                    $this->yanit(['success' => false, 'message' => 'E-posta ve şifre zorunludur.'], 400);
                     return;
                 }
                 $sonuc = ServisKatmani::girisYap($eposta, $sifre);
@@ -62,12 +62,46 @@ class Kontrolcu {
 
             if ($yol === '/api/cikis' && $metot === 'POST') {
                 ServisKatmani::cikisYap($this->tokenAl());
-                $this->yanit(['success' => true, 'message' => 'Ã‡Ä±kÄ±ÅŸ yapÄ±ldÄ±.']);
+                $this->yanit(['success' => true, 'message' => 'Çıkış yapıldı.']);
                 return;
             }
 
             if ($yol === '/api/meta' && $metot === 'GET') {
                 $this->yanit(['success' => true, 'kaynak' => 'mysql-replica', 'data' => VeriKatmani::yemekhanelerVeOgunler()]);
+                return;
+            }
+
+            if ($yol === '/api/alerjenlerim' && $metot === 'GET') {
+                $oturum = $this->oturumKullanici();
+                $kId = (int)($_GET['kullanici_id'] ?? ($oturum['kullanici_id'] ?? 0));
+                if ($kId <= 0) {
+                    $this->yanit(['success' => false, 'message' => 'Kullanıcı bulunamadı.'], 400);
+                    return;
+                }
+                $this->yanit([
+                    'success' => true,
+                    'kaynak' => 'mysql-replica',
+                    'data' => VeriKatmani::kullaniciAlerjenleriGetir($kId, false),
+                ]);
+                return;
+            }
+
+            if ($yol === '/api/alerjenlerim' && $metot === 'POST') {
+                $g = $this->jsonGovde();
+                $oturum = $this->oturumKullanici();
+                $kId = (int)($g['kullanici_id'] ?? ($oturum['kullanici_id'] ?? 0));
+                if ($kId <= 0) {
+                    $this->yanit(['success' => false, 'message' => 'Kullanıcı bulunamadı.'], 400);
+                    return;
+                }
+                $alerjenIdler = is_array($g['alerjen_idler'] ?? null) ? $g['alerjen_idler'] : [];
+                $kayitli = VeriKatmani::kullaniciAlerjenleriKaydet($kId, $alerjenIdler);
+                $this->yanit([
+                    'success' => true,
+                    'kaynak' => 'mysql-primary',
+                    'message' => 'Alerjen tercihleriniz güncellendi.',
+                    'data' => $kayitli,
+                ]);
                 return;
             }
 
@@ -87,14 +121,15 @@ class Kontrolcu {
                 $oturum = $this->oturumKullanici();
                 $kId = (int)($g['kullanici_id'] ?? ($oturum['kullanici_id'] ?? 0));
                 $mId = (int)($g['menu_id'] ?? 0);
+                $porsiyon = (string)($g['porsiyon'] ?? 'tam');
                 if ($kId <= 0 || $mId <= 0) {
-                    $this->yanit(['success' => false, 'message' => 'KullanÄ±cÄ± ve menÃ¼ bilgisi gereklidir.'], 400);
+                    $this->yanit(['success' => false, 'message' => 'Kullanıcı ve menü bilgisi gereklidir.'], 400);
                     return;
                 }
-                $sonuc = ServisKatmani::rezervasyonYap($kId, $mId);
+                $sonuc = ServisKatmani::rezervasyonYap($kId, $mId, $porsiyon);
                 $this->yanit([
                     'success' => true,
-                    'message' => 'Rezervasyon baÅŸarÄ±yla oluÅŸturuldu.',
+                    'message' => 'Rezervasyon başarıyla oluşturuldu.',
                     'guncel_bakiye' => $sonuc['guncel_bakiye'],
                     'bakiye_kaynak' => 'mysql-primary',
                     'data' => $sonuc['islem'],
@@ -106,7 +141,7 @@ class Kontrolcu {
                 $oturum = $this->oturumKullanici();
                 $kId = (int)($_GET['kullanici_id'] ?? ($oturum['kullanici_id'] ?? 0));
                 if ($kId <= 0) {
-                    $this->yanit(['success' => false, 'message' => 'KullanÄ±cÄ± bulunamadÄ±.'], 400);
+                    $this->yanit(['success' => false, 'message' => 'Kullanıcı bulunamadı.'], 400);
                     return;
                 }
                 $liste = VeriKatmani::kullaniciRezervasyonlari($kId);
@@ -139,7 +174,7 @@ class Kontrolcu {
                 $kId = (int)($_GET['kullanici_id'] ?? ($oturum['kullanici_id'] ?? 0));
                 $anlik = isset($_GET['anlik']) && $_GET['anlik'] === '1';
                 if ($kId <= 0) {
-                    $this->yanit(['success' => false, 'message' => 'KullanÄ±cÄ± bulunamadÄ±.'], 400);
+                    $this->yanit(['success' => false, 'message' => 'Kullanıcı bulunamadı.'], 400);
                     return;
                 }
                 $k = VeriKatmani::kullaniciIdIleGetir($kId, $anlik);
@@ -159,13 +194,13 @@ class Kontrolcu {
                 $kId = (int)($g['kullanici_id'] ?? ($oturum['kullanici_id'] ?? 0));
                 $tutar = (float)($g['tutar'] ?? ($g['miktar'] ?? 0));
                 if ($kId <= 0 || $tutar <= 0) {
-                    $this->yanit(['success' => false, 'message' => 'GeÃ§erli bir tutar giriniz.'], 400);
+                    $this->yanit(['success' => false, 'message' => 'Geçerli bir tutar giriniz.'], 400);
                     return;
                 }
                 $sonuc = ServisKatmani::bakiyeYukle($kId, $tutar);
                 $this->yanit([
                     'success' => true,
-                    'message' => 'Bakiye baÅŸarÄ±yla yÃ¼klendi.',
+                    'message' => 'Bakiye başarıyla yüklendi.',
                     'guncel_bakiye' => $sonuc['guncel_bakiye'],
                     'kaynak' => 'mysql-primary',
                     'data' => $sonuc['islem'],
@@ -177,7 +212,7 @@ class Kontrolcu {
                 $oturum = $this->oturumKullanici();
                 $kId = (int)($_GET['kullanici_id'] ?? ($oturum['kullanici_id'] ?? 0));
                 if ($kId <= 0) {
-                    $this->yanit(['success' => false, 'message' => 'KullanÄ±cÄ± bulunamadÄ±.'], 400);
+                    $this->yanit(['success' => false, 'message' => 'Kullanıcı bulunamadı.'], 400);
                     return;
                 }
                 $this->yanit([
@@ -196,11 +231,11 @@ class Kontrolcu {
                 $puan = (int)($g['puan'] ?? 0);
                 $yorum = isset($g['yorum']) ? trim((string)$g['yorum']) : null;
                 if ($kId <= 0 || $mId <= 0 || $puan < 1 || $puan > 5) {
-                    $this->yanit(['success' => false, 'message' => 'MenÃ¼ ve 1-5 arasÄ± puan zorunludur.'], 400);
+                    $this->yanit(['success' => false, 'message' => 'Menü ve 1-5 arası puan zorunludur.'], 400);
                     return;
                 }
                 VeriKatmani::degerlendirmeKaydet($kId, $mId, $puan, $yorum);
-                $this->yanit(['success' => true, 'message' => 'DeÄŸerlendirmeniz kaydedildi.']);
+                $this->yanit(['success' => true, 'message' => 'Değerlendirmeniz kaydedildi.']);
                 return;
             }
 
@@ -227,13 +262,13 @@ class Kontrolcu {
                 );
                 $this->yanit([
                     'success' => true,
-                    'message' => 'MenÃ¼ baÅŸarÄ±yla kaydedildi.',
+                    'message' => 'Menü başarıyla kaydedildi.',
                     'menu_id' => $menuId,
                 ]);
                 return;
             }
 
-            $this->yanit(['success' => false, 'message' => 'GeÃ§ersiz API uÃ§ noktasÄ±.'], 404);
+            $this->yanit(['success' => false, 'message' => 'Geçersiz API uç noktası.'], 404);
         } catch (Throwable $e) {
             $this->yanit(['success' => false, 'message' => ServisKatmani::temizHataMesaji($e)], 400);
         }
