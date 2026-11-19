@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Yemekhane Otomasyonu - Proje Raporu</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 32px; color: #182230; line-height: 1.5; }
+    h1 { color: #14532d; border-bottom: 2px solid #dce3ec; padding-bottom: 8px; }
+    h2 { color: #0f766e; margin-top: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #eef2f6; padding: 2px 5px; border-radius: 4px; font-size: 0.92em; }
+  </style>
+</head>
+<body>
+  <h1>Yemekhane Otomasyonu - Proje Raporu</h1>
+
+  <h2>1. Mimari ve Teknik Özeti</h2>
+  <ul>
+    <li><strong>Mimari Seçimi:</strong> Web API + Frontend (HTML5/CSS3) yaklaşımı kullanılmıştır. Statik arayüz dosyaları Apache üzerinden sunulurken <code>/api/...</code> istekleri PHP 8.2 tabanlı <code>uygulama</code> servisine yönlendirilmektedir.</li>
+    <li><strong>Katmanlı Yapı:</strong> <code>VeriKatmani</code> (PDO primary/replica + Redis), <code>ServisKatmani</code> (iş kuralları, oturum/token ve önbellek yönetimi), <code>Kontrolcu</code> ve <code>index.php</code> ayrımı uygulanmıştır.</li>
+    <li><strong>Veritabanı ve Replikasyon:</strong> MySQL 8.4 üzerinde <code>mysql-primary</code> (yazma ve anlık bakiye okuma) ve <code>mysql-replica</code> (salt okunur listeleme/raporlama) ayrımı uygulanmış; para hareketleri stored procedure'ler (<code>sp_rezervasyon_yap</code>, <code>sp_rezervasyon_iptal</code>, <code>sp_bakiye_yukle</code>, <code>sp_turnike_gecis</code>) üzerinden yürütülmüştür.</li>
+    <li><strong>Redis:</strong> Kullanıcı oturumları (<code>oturum:{token}</code>) ve menü önbelleği (<code>menu:...</code>) Redis üzerinde tutulmaktadır.</li>
+  </ul>
+
+  <h2>2. Aşama 1: Altyapı ve Replikasyon Doğrulama</h2>
+  <ul>
+    <li>Tüm container'lar (<code>mysql-primary</code>, <code>mysql-replica</code>, <code>redis</code>, <code>uygulama</code>, <code>frontend</code>) sağlıklı şekilde başlatıldı; <code>replica-setup</code> kurulumu tamamlayıp <code>Exited (0)</code> ile çıktı.</li>
+    <li><code>mysql-primary</code> üzerinde <code>sp_bakiye_yukle</code> ile bakiye güncellendi ve replikaya yansıdığı doğrulandı.</li>
+    <li><code>mysql-replica</code> üzerinde salt okunur (read-only) kısıtı doğrulandı; replika durdurulup yeniden başlatıldığında aradaki değişiklikleri yakaladığı teyit edildi.</li>
+  </ul>
+
+  <h2>3. Aşama 2: Uygulama Katmanı ve 7 Ekran</h2>
+  <ul>
+    <li>1. Giriş ve Oturum, 2. Günün Menüsü, 3. Haftalık Menü &amp; Rezervasyon, 4. Rezervasyonlarım, 5. Bakiye, 6. Değerlendirme ve 7. Yönetici Paneli ekranları oluşturuldu.</li>
+    <li>Mobil görünüm (~400px) uyumu ve Türkçe hata mesajlarının arayüze aktarımı sağlandı.</li>
+  </ul>
+
+  <h2>4. Aşama 3: Redis Oturum ve Önbellek</h2>
+  <ul>
+    <li>Giriş işlemlerinde Redis'te <code>oturum:{token}</code> anahtarları oluşturuldu.</li>
+    <li>Menü listeleme isteklerinde Redis önbellek (<code>menu:...</code>) kullanımı ve menü güncellemelerinde önbellek temizliği eklendi.</li>
+  </ul>
+
+  <h2>5. Aşama 4: Veritabanı Değişikliği (Migration)</h2>
+  <ul>
+    <li><code>db/init/04_degisiklik.sql</code> dosyası oluşturularak <code>yemek_notlari</code> tablosu eklendi ve <code>mysql-primary</code> üzerinden uygulanıp <code>mysql-replica</code> üzerinde replikasyonla doğrulandı.</li>
+  </ul>
+</body>
+</html>
