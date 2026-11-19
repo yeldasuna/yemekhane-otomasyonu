@@ -2,48 +2,65 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8">
-  <title>Yemekhane Otomasyonu - Proje Raporu</title>
+  <title>Yemekhane Otomasyonu - Dönem Ödevi Raporu</title>
   <style>
-    body { font-family: "Segoe UI", Arial, sans-serif; margin: 32px; color: #182230; line-height: 1.5; }
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 32px; color: #182230; line-height: 1.55; }
     h1 { color: #14532d; border-bottom: 2px solid #dce3ec; padding-bottom: 8px; }
     h2 { color: #0f766e; margin-top: 24px; }
     li { margin-bottom: 6px; }
-    code { background: #eef2f6; padding: 2px 5px; border-radius: 4px; font-size: 0.92em; }
+    code, pre { background: #eef2f6; border-radius: 4px; font-family: Consolas, monospace; }
+    code { padding: 2px 5px; font-size: 0.92em; }
+    pre { padding: 12px; overflow-x: auto; font-size: 0.85em; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+    th { background: #f1f5f9; }
   </style>
 </head>
 <body>
-  <h1>Yemekhane Otomasyonu - Proje Raporu</h1>
+  <h1>Yemekhane Otomasyonu - Dönem Ödevi Raporu</h1>
 
-  <h2>1. Mimari ve Teknik Özeti</h2>
+  <h2>1. Seçilen Mimari Yolu ve İstek Akışı</h2>
+  <p>Bu projede <strong>Web API + arayüz</strong> yaklaşımı seçilmiştir[cite: 2]. Backend API yalnızca JSON üretir; HTML5 + CSS3 arayüz <code>frontend</code> container'ında sunulur ve tarayıcı veriyi JavaScript <code>fetch</code> ile alır; Apache ise <code>/api/</code> isteklerini PHP 8.2 tabanlı <code>uygulama</code> servisine yönlendirir[cite: 2].</p>
+  <p><strong>İstek Akışı Örneği (<code>POST /api/rezervasyon</code>):</strong> İstemci <code>fetch('/api/rezervasyon', { method: 'POST', ... })</code> ile isteği gönderir[cite: 2]. Apache <code>/api/</code> kuralıyla isteği <code>uygulama/index.php</code> dosyasına iletir[cite: 2]. <code>index.php</code> çağrıyı <code>Kontrolcu::yonlendir()</code> metoduna aktarır[cite: 2]. Kontrolcü oturum ve <code>menu_id</code> / <code>porsiyon</code> parametrelerini doğrulayıp <code>ServisKatmani::rezervasyonYap()</code> iş kuralını çağırır; servis katmanı da <code>VeriKatmani::spRezervasyonYap()</code> üzerinden <code>mysql-primary</code> üzerinde <code>sp_rezervasyon_yap</code> yordamını çalıştırır ve güncel bakiyeyi okuyarak JSON yanıtını istemciye döndürür[cite: 2].</p>
+
+  <h2>2. Aşama 1: Altyapı ve Replikasyon</h2>
   <ul>
-    <li><strong>Mimari Seçimi:</strong> Web API + Frontend (HTML5/CSS3) yaklaşımı kullanılmıştır. Statik arayüz dosyaları Apache üzerinden sunulurken <code>/api/...</code> istekleri PHP 8.2 tabanlı <code>uygulama</code> servisine yönlendirilmektedir.</li>
-    <li><strong>Katmanlı Yapı:</strong> <code>VeriKatmani</code> (PDO primary/replica + Redis), <code>ServisKatmani</code> (iş kuralları, oturum/token ve önbellek yönetimi), <code>Kontrolcu</code> ve <code>index.php</code> ayrımı uygulanmıştır.</li>
-    <li><strong>Veritabanı ve Replikasyon:</strong> MySQL 8.4 üzerinde <code>mysql-primary</code> (yazma ve anlık bakiye okuma) ve <code>mysql-replica</code> (salt okunur listeleme/raporlama) ayrımı uygulanmış; para hareketleri stored procedure'ler (<code>sp_rezervasyon_yap</code>, <code>sp_rezervasyon_iptal</code>, <code>sp_bakiye_yukle</code>, <code>sp_turnike_gecis</code>) üzerinden yürütülmüştür.</li>
-    <li><strong>Redis:</strong> Kullanıcı oturumları (<code>oturum:{token}</code>) ve menü önbelleği (<code>menu:...</code>) Redis üzerinde tutulmaktadır.</li>
+    <li><code>docker compose ps</code> çıktısında tüm servislerin (<code>mysql-primary</code>, <code>mysql-replica</code>, <code>redis</code>, <code>uygulama</code>, <code>frontend</code>) sağlıklı (<code>healthy</code>) olduğu ve <code>replica-setup</code> container'ının kurulumu tamamlayıp başarıyla çıktığı doğrulanmıştır[cite: 2].</li>
+    <li>Kaynak sunucuda (<code>mysql-primary</code>) <code>sp_bakiye_yukle</code> ile yapılan bakiye yüklemesinin replika sunucuya (<code>mysql-replica</code>) aktarıldığı teyit edilmiştir[cite: 2].</li>
+    <li>Replikaya doğrudan yazma denemesi salt okunur (<code>read-only</code>) kısıtı nedeniyle reddedilmiştir[cite: 2].</li>
+    <li>Replika container durdurulup yeniden başlatıldığında kesinti süresince oluşan değişiklikleri yakaladığı doğrulanmıştır[cite: 2].</li>
   </ul>
 
-  <h2>2. Aşama 1: Altyapı ve Replikasyon Doğrulama</h2>
+  <h2>3. Aşama 2: Uygulama Katmanı, 7 Ekran ve Replikasyon Kuralı</h2>
   <ul>
-    <li>Tüm container'lar (<code>mysql-primary</code>, <code>mysql-replica</code>, <code>redis</code>, <code>uygulama</code>, <code>frontend</code>) sağlıklı şekilde başlatıldı; <code>replica-setup</code> kurulumu tamamlayıp <code>Exited (0)</code> ile çıktı.</li>
-    <li><code>mysql-primary</code> üzerinde <code>sp_bakiye_yukle</code> ile bakiye güncellendi ve replikaya yansıdığı doğrulandı.</li>
-    <li><code>mysql-replica</code> üzerinde salt okunur (read-only) kısıtı doğrulandı; replika durdurulup yeniden başlatıldığında aradaki değişiklikleri yakaladığı teyit edildi.</li>
+    <li>Arayüzde 7 ekranın tamamı oluşturulmuştur: (1) Giriş ve çıkış (e-posta + şifre, <code>bcrypt</code> doğrulaması), (2) Günün menüsü (yemekhane/öğün seçimi, yemekler, toplam kalori, vejetaryen ve alerjen bilgisi), (3) Haftalık menü ve rezervasyon (boş yer sayısı, role göre fiyat, son saat kontrolü), (4) Rezervasyonlarım (aktif, kullanıldı, iptal durumları ve iptal işlemi), (5) Bakiye (güncel bakiye, hareket geçmişi, bakiye yükleme), (6) Değerlendirme (kullanılmış menüye 1-5 puan ve yorum) ve (7) Yönetici paneli (menü oluşturma/düzenleme, doluluk ve ortalama puan)[cite: 2].</li>
+    <li>Yazma işlemleri kaynak sunucuya (<code>mysql-primary</code>), listeleme ve raporlar replikaya (<code>mysql-replica</code>) yönlendirilmiş; arayüz ~400 px telefon genişliğinde kullanılabilir şekilde tasarlanmıştır[cite: 2].</li>
+    <li><strong>Rezervasyondan Hemen Sonra Bakiyenin Kaynaktan Okunma Nedeni:</strong> Asenkron replikasyonda kaynak sunucuda (<code>mysql-primary</code>) commit edilen bakiye düşümü, ağ veya replika uygulama gecikmesi nedeniyle milisaniyeler içinde replikaya (<code>mysql-replica</code>) henüz yansımamış olabilir. Rezervasyon veya bakiye işleminden hemen sonra okuma replikadan yapılırsa kullanıcı eski bakiyeyi görebilir; bu nedenle işlem sonrası anlık bakiye doğrudan kaynak sunucudan okunur[cite: 2].</li>
   </ul>
 
-  <h2>3. Aşama 2: Uygulama Katmanı ve 7 Ekran</h2>
+  <h2>4. Aşama 3: Redis Oturum ve Menü Önbelleği</h2>
+  <table>
+    <thead>
+      <tr><th>Görev</th><th>Anahtar</th><th>Süre (TTL)</th><th>Silinme Zamanı</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Menü önbelleği</td><td><code>menu:{yemekhane_id}:{tarih}:{ogun_id}</code></td><td>O günün sonuna kadar</td><td>Yönetici o menüyü güncellediğinde</td></tr>
+      <tr><td>Oturum</td><td><code>oturum:{token}</code></td><td>30 dakika (her istekte yenilenir)</td><td>Çıkış yapıldığında</td></tr>
+    </tbody>
+  </table>
   <ul>
-    <li>1. Giriş ve Oturum, 2. Günün Menüsü, 3. Haftalık Menü &amp; Rezervasyon, 4. Rezervasyonlarım, 5. Bakiye, 6. Değerlendirme ve 7. Yönetici Paneli ekranları oluşturuldu.</li>
-    <li>Mobil görünüm (~400px) uyumu ve Türkçe hata mesajlarının arayüze aktarımı sağlandı.</li>
+    <li>İlk menü isteğinde veri veritabanından okunup Redis'e yazılır; sonraki isteklerde Redis'ten karşılanır ve kaynak bilgisi uygulama günlüğüne (<code>error_log</code>) yazılır[cite: 1].</li>
+    <li>Menü güncellendiğinde ilgili <code>menu:{yemekhane_id}:{tarih}:{ogun_id}</code> anahtarı silinir ve arayüz güncel menüyü gösterir[cite: 1].</li>
+    <li><code>uygulama</code> container'ı yeniden başlasa dahi oturumlar Redis üzerinde tutulduğu için kullanıcı oturumu düşmez[cite: 1].</li>
   </ul>
 
-  <h2>4. Aşama 3: Redis Oturum ve Önbellek</h2>
+  <h2>5. Aşama 4: Değişiklik Talebi (Yarım Porsiyon ve Alerjen Uyarısı)</h2>
   <ul>
-    <li>Giriş işlemlerinde Redis'te <code>oturum:{token}</code> anahtarları oluşturuldu.</li>
-    <li>Menü listeleme isteklerinde Redis önbellek (<code>menu:...</code>) kullanımı ve menü güncellemelerinde önbellek temizliği eklendi.</li>
+    <li><strong>Yarım Porsiyon:</strong> Öğle ve akşam menülerinde yarım porsiyon seçilebilir; ücret tam fiyatın %60'ıdır[cite: 1]. Kahvaltıda yarım porsiyon yoktur ve geçmiş/mevcut kayıtlar varsayılan olarak tam porsiyon sayılır[cite: 1]. <code>sp_rezervasyon_yap</code> yordamı porsiyon ve %60 ücret kuralını destekleyecek şekilde güncellenmiştir[cite: 1].</li>
+    <li><strong>Alerjen Uyarısı:</strong> Kullanıcı alerjen tercihlerini <code>kullanici_alerjenleri</code> tablosuna kaydedebilir ve menüde bu alerjenleri içeren yemekler uyarıyla gösterilir[cite: 1].</li>
+    <li><strong>Migration ve Replika Doğrulaması:</strong> Tüm veritabanı değişiklikleri tek bir <code>db/init/04_degisiklik.sql</code> dosyasında toplanmış, Redis'teki eski menü anahtarları temizlenmiş ve <code>rezervasyonlar</code> + <code>kullanici_alerjenleri</code> tablolarının replikaya geçtiği <code>SHOW CREATE TABLE</code> ile doğrulanmıştır[cite: 1].</li>
   </ul>
-
-  <h2>5. Aşama 4: Veritabanı Değişikliği (Migration)</h2>
-  <ul>
-    <li><code>db/init/04_degisiklik.sql</code> dosyası oluşturularak <code>yemek_notlari</code> tablosu eklendi ve <code>mysql-primary</code> üzerinden uygulanıp <code>mysql-replica</code> üzerinde replikasyonla doğrulandı.</li>
-  </ul>
+  <pre>rezervasyonlar -> porsiyon enum('tam','yarim') NOT NULL DEFAULT 'tam'
+kullanici_alerjenleri -> PRIMARY KEY (kullanici_id, alerjen_id)</pre>
 </body>
 </html>
