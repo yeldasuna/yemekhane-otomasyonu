@@ -3,55 +3,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KampÃ¼s Yemekhane Otomasyonu</title>
+  <title>Kampüs Yemekhane Otomasyonu</title>
   <link rel="stylesheet" href="/css/temel.css">
 </head>
 <body>
   <main class="kapsayici">
     <header class="ust-bar">
       <div>
-        <h1>KampÃ¼s Yemekhane Otomasyonu</h1>
+        <h1>Kampüs Yemekhane Otomasyonu</h1>
       </div>
       <div id="oturum-cubugu" class="kullanici-ozet gizli">
         <span class="rozet" id="ust-ad">-</span>
         <span class="rozet" id="ust-rol">-</span>
         <span class="rozet">Bakiye: <strong id="ust-bakiye">0.00</strong> TL</span>
-        <button class="tehlike" onclick="cikisYap()">Ã‡Ä±kÄ±ÅŸ Yap</button>
+        <button class="tehlike" onclick="cikisYap()">Çıkış Yap</button>
       </div>
     </header>
 
     <div id="genel-mesaj" class="mesaj gizli"></div>
 
     <section id="ekran-giris" class="kart">
-      <h2>1. GiriÅŸ ve Oturum</h2>
-      <p>E-posta ve ÅŸifrenizle giriÅŸ yapÄ±n.</p>
+      <h2>1. Giriş ve Oturum</h2>
+      <p>E-posta ve şifrenizle giriş yapın.</p>
       <form onsubmit="girisYap(event)" class="filtre-satiri">
         <div class="alan">
           <label for="giris-eposta">E-posta</label>
           <input type="email" id="giris-eposta" required value="leyla.arslan@kampus.edu.tr">
         </div>
         <div class="alan">
-          <label for="giris-sifre">Åifre</label>
+          <label for="giris-sifre">Şifre</label>
           <input type="password" id="giris-sifre" required value="Yemek2026!">
         </div>
         <div>
-          <button type="submit">GiriÅŸ Yap</button>
+          <button type="submit">Giriş Yap</button>
         </div>
       </form>
     </section>
 
     <div id="uygulama-alani" class="gizli">
       <nav class="sekme-cubugu" aria-label="Ekranlar">
-        <button class="sekme-btn aktif" data-sekme="gunun-menusu" onclick="sekmeAc('gunun-menusu')">2. GÃ¼nÃ¼n MenÃ¼sÃ¼</button>
-        <button class="sekme-btn" data-sekme="haftalik-menu" onclick="sekmeAc('haftalik-menu')">3. HaftalÄ±k MenÃ¼ & Rezervasyon</button>
-        <button class="sekme-btn" data-sekme="rezervasyonlarim" onclick="sekmeAc('rezervasyonlarim')">4. RezervasyonlarÄ±m</button>
+        <button class="sekme-btn aktif" data-sekme="gunun-menusu" onclick="sekmeAc('gunun-menusu')">2. Günün Menüsü</button>
+        <button class="sekme-btn" data-sekme="haftalik-menu" onclick="sekmeAc('haftalik-menu')">3. Haftalık Menü & Rezervasyon</button>
+        <button class="sekme-btn" data-sekme="rezervasyonlarim" onclick="sekmeAc('rezervasyonlarim')">4. Rezervasyonlarım</button>
         <button class="sekme-btn" data-sekme="bakiye" onclick="sekmeAc('bakiye')">5. Bakiye</button>
-        <button class="sekme-btn" data-sekme="degerlendirme" onclick="sekmeAc('degerlendirme')">6. DeÄŸerlendirme</button>
-        <button class="sekme-btn" id="sekme-yonetici" data-sekme="yonetici" onclick="sekmeAc('yonetici')">7. YÃ¶netici Paneli</button>
+        <button class="sekme-btn" data-sekme="degerlendirme" onclick="sekmeAc('degerlendirme')">6. Değerlendirme</button>
+        <button class="sekme-btn" id="sekme-yonetici" data-sekme="yonetici" onclick="sekmeAc('yonetici')">7. Yönetici Paneli</button>
       </nav>
 
       <section id="ekran-gunun-menusu" class="kart">
-        <h2>2. GÃ¼nÃ¼n MenÃ¼sÃ¼</h2>
+        <h2>2. Günün Menüsü</h2>
         <div class="filtre-satiri">
           <div class="alan">
             <label for="gun-tarih">Tarih</label>
@@ -62,21 +62,21 @@
             <select id="gun-yemekhane"></select>
           </div>
           <div class="alan">
-            <label for="gun-ogun">Ã–ÄŸÃ¼n</label>
+            <label for="gun-ogun">Öğün</label>
             <select id="gun-ogun"></select>
           </div>
           <div>
-            <button onclick="gununMenusunuGetir()">MenÃ¼yÃ¼ GÃ¶ster</button>
+            <button onclick="gununMenusunuGetir()">Menüyü Göster</button>
           </div>
         </div>
         <div id="gun-menu-sonuc" class="izgara"></div>
       </section>
 
       <section id="ekran-haftalik-menu" class="kart gizli">
-        <h2>3. HaftalÄ±k MenÃ¼ ve Rezervasyon</h2>
+        <h2>3. Haftalık Menü ve Rezervasyon</h2>
         <div class="filtre-satiri">
           <div class="alan">
-            <label for="hafta-baslangic">BaÅŸlangÄ±Ã§ Tarihi</label>
+            <label for="hafta-baslangic">Başlangıç Tarihi</label>
             <input type="date" id="hafta-baslangic">
           </div>
           <div class="alan">
@@ -91,7 +91,7 @@
       </section>
 
       <section id="ekran-rezervasyonlarim" class="kart gizli">
-        <h2>4. RezervasyonlarÄ±m</h2>
+        <h2>4. Rezervasyonlarım</h2>
         <button class="ikincil" onclick="rezervasyonlarimiGetir()" style="margin-bottom:10px;">Listeyi Yenile</button>
         <div class="tablo-sar">
           <table>
@@ -99,11 +99,11 @@
               <tr>
                 <th>Tarih</th>
                 <th>Yemekhane</th>
-                <th>Ã–ÄŸÃ¼n</th>
+                <th>Öğün</th>
                 <th>Durum</th>
-                <th>Ãœcret</th>
+                <th>Ücret</th>
                 <th>Son Saat</th>
-                <th>Ä°ÅŸlem</th>
+                <th>İşlem</th>
               </tr>
             </thead>
             <tbody id="rezervasyon-tablo"></tbody>
@@ -112,26 +112,31 @@
       </section>
 
       <section id="ekran-bakiye" class="kart gizli">
-        <h2>5. Bakiye Ä°ÅŸlemleri</h2>
-        <p>GÃ¼ncel Bakiye: <strong id="bakiye-guncel">0.00</strong> TL</p>
+        <h2>5. Bakiye İşlemleri</h2>
+        <p>Güncel Bakiye: <strong id="bakiye-guncel">0.00</strong> TL</p>
+        <div class="kart" style="margin:12px 0;padding:12px;">
+          <h3 style="margin-top:0;">Alerjen Tercihlerim</h3>
+          <div id="alerjen-tercih-liste" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;"></div>
+          <button type="button" onclick="alerjenTercihKaydet()">Alerjen Tercihlerini Kaydet</button>
+        </div>
         <form onsubmit="bakiyeYukle(event)" class="filtre-satiri">
           <div class="alan">
-            <label for="yukleme-tutar">YÃ¼klenecek Tutar (TL)</label>
+            <label for="yukleme-tutar">Yüklenecek Tutar (TL)</label>
             <input type="number" step="0.01" min="0.01" id="yukleme-tutar" required placeholder="50.00">
           </div>
           <div>
-            <button type="submit">Bakiye YÃ¼kle</button>
+            <button type="submit">Bakiye Yükle</button>
           </div>
         </form>
-        <h3>Bakiye Hareket GeÃ§miÅŸi</h3>
+        <h3>Bakiye Hareket Geçmişi</h3>
         <div class="tablo-sar">
           <table>
             <thead>
               <tr>
                 <th>Tarih</th>
-                <th>TÃ¼r</th>
+                <th>Tür</th>
                 <th>Tutar</th>
-                <th>AÃ§Ä±klama</th>
+                <th>Açıklama</th>
               </tr>
             </thead>
             <tbody id="bakiye-tablo"></tbody>
@@ -140,25 +145,25 @@
       </section>
 
       <section id="ekran-degerlendirme" class="kart gizli">
-        <h2>6. MenÃ¼ DeÄŸerlendirme (KullanÄ±lmÄ±ÅŸ MenÃ¼ler)</h2>
+        <h2>6. Menü Değerlendirme (Kullanılmış Menüler)</h2>
         <form onsubmit="degerlendirmeGonder(event)" class="filtre-satiri">
           <div class="alan">
-            <label for="deg-menu">KullanÄ±lmÄ±ÅŸ MenÃ¼</label>
+            <label for="deg-menu">Kullanılmış Menü</label>
             <select id="deg-menu" required></select>
           </div>
           <div class="alan">
-            <label for="deg-puan">Puan (1â€“5)</label>
+            <label for="deg-puan">Puan (1—</label>
             <select id="deg-puan" required>
-              <option value="5">5 - Ã‡ok Ä°yi</option>
-              <option value="4">4 - Ä°yi</option>
+              <option value="5">5 - Çok İyi</option>
+              <option value="4">4 - İyi</option>
               <option value="3">3 - Orta</option>
-              <option value="2">2 - ZayÄ±f</option>
-              <option value="1">1 - KÃ¶tÃ¼</option>
+              <option value="2">2 - Zayıf</option>
+              <option value="1">1 - Kötü</option>
             </select>
           </div>
           <div class="alan">
             <label for="deg-yorum">Yorum</label>
-            <input type="text" id="deg-yorum" maxlength="500" placeholder="KÄ±sa yorumunuz...">
+            <input type="text" id="deg-yorum" maxlength="500" placeholder="Kısa yorumunuz...">
           </div>
           <div>
             <button type="submit">Kaydet</button>
@@ -170,8 +175,8 @@
               <tr>
                 <th>Tarih</th>
                 <th>Yemekhane</th>
-                <th>Ã–ÄŸÃ¼n</th>
-                <th>PuanÄ±m</th>
+                <th>Öğün</th>
+                <th>Puanım</th>
                 <th>Yorumum</th>
               </tr>
             </thead>
@@ -181,13 +186,13 @@
       </section>
 
       <section id="ekran-yonetici" class="kart gizli">
-        <h2>7. YÃ¶netici Paneli â€” MenÃ¼ OluÅŸtur / DÃ¼zenle & Raporlar</h2>
+        <h2>7. Yönetici Paneli — Menü Oluştur / Düzenle & Raporlar</h2>
         <form onsubmit="menuKaydet(event)" class="kart" style="background:#fcfcfd;">
-          <h3>MenÃ¼ Ekle / GÃ¼ncelle</h3>
+          <h3>Menü Ekle / Güncelle</h3>
           <div class="filtre-satiri">
             <div class="alan">
-              <label for="ym-menu-id">DÃ¼zenlenecek MenÃ¼ ID (BoÅŸsa Yeni)</label>
-              <input type="number" min="1" id="ym-menu-id" placeholder="Yeni kayÄ±t iÃ§in boÅŸ bÄ±rakÄ±n">
+              <label for="ym-menu-id">Düzenlenecek Menü ID (Boşsa Yeni)</label>
+              <input type="number" min="1" id="ym-menu-id" placeholder="Yeni kayıt için boş bırakın">
             </div>
             <div class="alan">
               <label for="ym-tarih">Tarih</label>
@@ -198,26 +203,26 @@
               <select id="ym-yemekhane" required></select>
             </div>
             <div class="alan">
-              <label for="ym-ogun">Ã–ÄŸÃ¼n</label>
+              <label for="ym-ogun">Öğün</label>
               <select id="ym-ogun" required></select>
             </div>
             <div class="alan">
-              <label for="ym-ogr-fiyat">Ã–ÄŸrenci FiyatÄ± (TL)</label>
+              <label for="ym-ogr-fiyat">Öğrenci Fiyatı (TL)</label>
               <input type="number" step="0.01" min="0" id="ym-ogr-fiyat" required value="25.00">
             </div>
             <div class="alan">
-              <label for="ym-per-fiyat">Personel FiyatÄ± (TL)</label>
+              <label for="ym-per-fiyat">Personel Fiyatı (TL)</label>
               <input type="number" step="0.01" min="0" id="ym-per-fiyat" required value="60.00">
             </div>
           </div>
           <div class="alan" style="margin-bottom:10px;">
-            <label>MenÃ¼deki Yemekler</label>
+            <label>Menüdeki Yemekler</label>
             <div id="ym-yemekler" class="yemek-secim-kutu"></div>
           </div>
-          <button type="submit">MenÃ¼yÃ¼ Kaydet</button>
+          <button type="submit">Menüyü Kaydet</button>
         </form>
 
-        <h3>MenÃ¼ BazÄ±nda Doluluk ve Ortalama Puan</h3>
+        <h3>Menü Bazında Doluluk ve Ortalama Puan</h3>
         <div class="tablo-sar">
           <table>
             <thead>
@@ -225,9 +230,9 @@
                 <th>ID</th>
                 <th>Tarih</th>
                 <th>Yemekhane</th>
-                <th>Ã–ÄŸÃ¼n</th>
+                <th>Öğün</th>
                 <th>Doluluk</th>
-                <th>BoÅŸ Yer</th>
+                <th>Boş Yer</th>
                 <th>Ort. Puan</th>
                 <th>Oy</th>
               </tr>
@@ -292,7 +297,7 @@
         body: JSON.stringify({ eposta, sifre })
       });
       if (!sonuc.success) {
-        mesajGoster(sonuc.message || 'GiriÅŸ baÅŸarÄ±sÄ±z.', 'hata');
+        mesajGoster(sonuc.message || 'Giriş başarısız.', 'hata');
         return;
       }
       DURUM.token = sonuc.token || '';
@@ -300,7 +305,7 @@
       localStorage.setItem('yemekhane_token', DURUM.token);
       localStorage.setItem('yemekhane_kullanici', JSON.stringify(DURUM.kullanici));
       oturumuAc();
-      mesajGoster('GiriÅŸ baÅŸarÄ±lÄ±.', 'ok');
+      mesajGoster('Giriş başarılı.', 'ok');
     }
 
     async function cikisYap() {
@@ -312,7 +317,7 @@
       document.getElementById('uygulama-alani').classList.add('gizli');
       document.getElementById('oturum-cubugu').classList.add('gizli');
       document.getElementById('ekran-giris').classList.remove('gizli');
-      mesajGoster('Ã‡Ä±kÄ±ÅŸ yapÄ±ldÄ±.', 'ok');
+      mesajGoster('Çıkış yapıldı.', 'ok');
     }
 
     async function oturumuAc() {
@@ -333,7 +338,7 @@
       if (!sonuc.success) return;
       DURUM.meta = sonuc.data;
       const yhHtml = DURUM.meta.yemekhaneler.map(y => `<option value="${y.id}">${y.ad} (${y.kapasite})</option>`).join('');
-      const ogHtml = `<option value="">TÃ¼mÃ¼</option>` + DURUM.meta.ogunler.map(o => `<option value="${o.id}">${o.ad}</option>`).join('');
+      const ogHtml = `<option value="">Tümü</option>` + DURUM.meta.ogunler.map(o => `<option value="${o.id}">${o.ad}</option>`).join('');
       const ogZorunluHtml = DURUM.meta.ogunler.map(o => `<option value="${o.id}">${o.ad}</option>`).join('');
       document.getElementById('gun-yemekhane').innerHTML = yhHtml;
       document.getElementById('gun-ogun').innerHTML = ogHtml;
@@ -380,25 +385,51 @@
       const fiyat = kullaniciFiyati(m).toFixed(2);
       const sonGecti = new Date(String(m.rezervasyon_son).replace(' ', 'T')) <= new Date();
       const yerYok = Number(m.bos_yer ?? 1) <= 0;
+      const seciliAlerjenSet = new Set((DURUM.alerjenIdler || []).map(Number));
       const yemeklerHtml = (m.yemekler || []).map(y => {
         const vej = y.vejetaryen ? `<span class="etiket vej">Vejetaryen</span>` : '';
-        const alerjen = (y.alerjenler || []).map(a => `<span class="etiket alerjen">${a.ad}</span>`).join('');
-        return `<li><strong>${y.ad}</strong> (${y.kalori} kcal)${vej}${alerjen}</li>`;
+        const yAlerjenler = y.alerjenler || [];
+        const eslesen = yAlerjenler.filter(a => seciliAlerjenSet.has(Number(a.id)));
+        const alerjen = yAlerjenler.map(a => {
+          const eslesti = seciliAlerjenSet.has(Number(a.id));
+          return `<span class="etiket alerjen" style="${eslesti ? 'border:2px solid #b91c1c;font-weight:700;' : ''}">${a.ad}</span>`;
+        }).join('');
+        const uyariRozet = eslesen.length > 0
+          ? ` <span class="etiket alerjen" style="background:#fee2e2;color:#991b1b;font-weight:700;">Alerjen Uyarısı: ${eslesen.map(x => x.ad).join(', ')}</span>`
+          : '';
+        return `<li style="${eslesen.length > 0 ? 'background:#fef2f2;padding:3px 6px;border-radius:6px;' : ''}"><strong>${y.ad}</strong> (${y.kalori} kcal)${vej}${alerjen}${uyariRozet}</li>`;
       }).join('');
       let aksiyonHtml = '';
       if (rezervasyonButonlu) {
         const pasif = sonGecti || yerYok;
-        const etiket = sonGecti ? 'Son Saat GeÃ§ti' : (yerYok ? 'Kontenjan Dolu' : `Rezervasyon Yap (${fiyat} TL)`);
-        aksiyonHtml = `<button ${pasif ? 'disabled' : ''} onclick="rezervasyonYap(${m.menu_id})">${etiket}</button>`;
+        const ogunAdi = String(m.ogun || '').toLowerCase();
+        const kahvaltiMi = ogunAdi.includes('kahvalt') || ogunAdi.includes('kahvalti');
+        const yarimFiyat = (Number(fiyat) * 0.6).toFixed(2);
+        const etiket = sonGecti ? 'Son Saat Geçti' : (yerYok ? 'Kontenjan Dolu' : `Rezervasyon Yap (${fiyat} TL)`);
+        if (pasif) {
+          aksiyonHtml = `<button disabled>${etiket}</button>`;
+        } else if (kahvaltiMi) {
+          aksiyonHtml = `<button onclick="rezervasyonYap(${m.menu_id}, 'tam')">${etiket}</button>`;
+        } else {
+          aksiyonHtml = `
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:170px;">
+              <select id="porsiyon-${m.menu_id}" onchange="porsiyonFiyatGuncelle(${m.menu_id}, ${Number(fiyat)})">
+                <option value="tam">Tam Porsiyon (${fiyat} TL)</option>
+                <option value="yarim">Yarım (%60) (${yarimFiyat} TL)</option>
+              </select>
+              <button id="rez-btn-${m.menu_id}" onclick="rezervasyonYap(${m.menu_id})">${etiket}</button>
+            </div>
+          `;
+        }
       }
       return `
         <article class="menu-karti">
           <div>
-            <div><strong>${m.tarih}</strong> Â· ${m.yemekhane} Â· <strong>${m.ogun}</strong></div>
+            <div><strong>${m.tarih}</strong>  · ${m.yemekhane}  · <strong>${m.ogun}</strong></div>
             <div style="font-size:0.85rem;color:#5b687a;margin-top:4px;">
-              Toplam Kalori: <strong>${m.toplam_kalori} kcal</strong> Â· FiyatÄ±nÄ±z: <strong>${fiyat} TL</strong> Â· BoÅŸ Yer: <strong>${m.bos_yer ?? '-'}</strong>
+              Toplam Kalori: <strong>${m.toplam_kalori} kcal</strong>  · Fiyatınız: <strong>${fiyat} TL</strong>  · Boş Yer: <strong>${m.bos_yer ?? '-'}</strong>
             </div>
-            <ul class="yemek-liste">${yemeklerHtml || '<li>Yemek kaydÄ± bulunmuyor.</li>'}</ul>
+            <ul class="yemek-liste">${yemeklerHtml || '<li>Yemek kaydı bulunmuyor.</li>'}</ul>
           </div>
           <div>${aksiyonHtml}</div>
         </article>
@@ -414,7 +445,7 @@
       const sonuc = await apiIstek('/api/menuler?' + qs.toString());
       const hedef = document.getElementById('gun-menu-sonuc');
       if (!sonuc.success) { hedef.innerHTML = `<div class="mesaj hata">${sonuc.message}</div>`; return; }
-      if (!sonuc.data.length) { hedef.innerHTML = `<div class="mesaj uyari">SeÃ§ilen kriterlere uygun menÃ¼ bulunamadÄ±.</div>`; return; }
+      if (!sonuc.data.length) { hedef.innerHTML = `<div class="mesaj uyari">Seçilen kriterlere uygun menü bulunamadı.</div>`; return; }
       hedef.innerHTML = sonuc.data.map(m => menuKartHtml(m, false)).join('');
     }
 
@@ -426,19 +457,64 @@
       const sonuc = await apiIstek('/api/menuler?' + qs.toString());
       const hedef = document.getElementById('hafta-menu-sonuc');
       if (!sonuc.success) { hedef.innerHTML = `<div class="mesaj hata">${sonuc.message}</div>`; return; }
-      if (!sonuc.data.length) { hedef.innerHTML = `<div class="mesaj uyari">HaftalÄ±k menÃ¼ bulunamadÄ±.</div>`; return; }
+      if (!sonuc.data.length) { hedef.innerHTML = `<div class="mesaj uyari">Haftalık menü bulunamadı.</div>`; return; }
       hedef.innerHTML = sonuc.data.map(m => menuKartHtml(m, true)).join('');
     }
 
-    async function rezervasyonYap(menuId) {
+    function porsiyonFiyatGuncelle(menuId, tamFiyat) {
+      const sel = document.getElementById(`porsiyon-${menuId}`);
+      const btn = document.getElementById(`rez-btn-${menuId}`);
+      if (!sel || !btn) return;
+      const porsiyon = sel.value;
+      const tutar = porsiyon === 'yarim' ? (Number(tamFiyat) * 0.6).toFixed(2) : Number(tamFiyat).toFixed(2);
+      btn.textContent = `Rezervasyon Yap (${tutar} TL)`;
+    }
+
+    async function kullaniciAlerjenleriniYukle() {
+      if (!DURUM.kullanici) return;
+      const sonuc = await apiIstek(`/api/alerjenlerim?kullanici_id=${DURUM.kullanici.id}`);
+      if (sonuc && sonuc.success && Array.isArray(sonuc.data)) {
+        DURUM.alerjenIdler = sonuc.data.map(a => Number(a.id));
+      }
+      alerjenKutulariniCiz();
+    }
+
+    function alerjenKutulariniCiz() {
+      const kutu = document.getElementById('alerjen-tercih-liste');
+      if (!kutu) return;
+      const secili = new Set((DURUM.alerjenIdler || []).map(Number));
+      const tumAlerjenler = (DURUM.meta && Array.isArray(DURUM.meta.alerjenler)) ? DURUM.meta.alerjenler : (DURUM.alerjenler || []); kutu.innerHTML = tumAlerjenler.map(a => {
+        const checked = secili.has(Number(a.id)) ? 'checked' : '';
+        return `<label style="display:inline-flex;align-items:center;gap:4px;"><input type="checkbox" class="alerjen-secim" value="${a.id}" ${checked}> ${a.ad}</label>`;
+      }).join('');
+    }
+
+    async function alerjenTercihKaydet() {
       mesajGizle();
+      if (!DURUM.kullanici) return;
+      const idler = Array.from(document.querySelectorAll('.alerjen-secim:checked')).map(el => Number(el.value));
+      const sonuc = await apiIstek('/api/alerjenlerim', {
+        method: 'POST',
+        body: JSON.stringify({ kullanici_id: DURUM.kullanici.id, alerjen_idler: idler })
+      });
+      if (!sonuc.success) { mesajGoster(sonuc.message || 'Alerjen tercihleri kaydedilemedi.', 'hata'); return; }
+      DURUM.alerjenIdler = Array.isArray(sonuc.data) ? sonuc.data.map(a => Number(a.id)) : idler;
+      mesajGoster(sonuc.message || 'Alerjen tercihleriniz güncellendi.', 'ok');
+      gununMenusunuGetir();
+      haftalikMenuyuGetir();
+    }
+
+    async function rezervasyonYap(menuId, sabitPorsiyon = null) {
+      mesajGizle();
+      const sel = document.getElementById(`porsiyon-${menuId}`);
+      const porsiyon = sabitPorsiyon || (sel ? sel.value : 'tam');
       const sonuc = await apiIstek('/api/rezervasyon', {
         method: 'POST',
-        body: JSON.stringify({ kullanici_id: DURUM.kullanici.id, menu_id: menuId })
+        body: JSON.stringify({ kullanici_id: DURUM.kullanici.id, menu_id: menuId, porsiyon })
       });
-      if (!sonuc.success) { mesajGoster(sonuc.message || 'Rezervasyon yapÄ±lamadÄ±.', 'hata'); return; }
+      if (!sonuc.success) { mesajGoster(sonuc.message || 'Rezervasyon yapılamadı.', 'hata'); return; }
       if (sonuc.guncel_bakiye !== undefined && sonuc.guncel_bakiye !== null) bakiyeGuncelleEkranda(sonuc.guncel_bakiye);
-      mesajGoster(`${sonuc.message} GÃ¼ncel bakiye: ${Number(sonuc.guncel_bakiye).toFixed(2)} TL`, 'ok');
+      mesajGoster(`${sonuc.message} Güncel bakiye: ${Number(sonuc.guncel_bakiye).toFixed(2)} TL`, 'ok');
       haftalikMenuyuGetir();
     }
 
@@ -446,7 +522,7 @@
       const sonuc = await apiIstek(`/api/rezervasyonlarim?kullanici_id=${DURUM.kullanici.id}`);
       const tbody = document.getElementById('rezervasyon-tablo');
       if (!sonuc.success) { tbody.innerHTML = `<tr><td colspan="7">${sonuc.message}</td></tr>`; return; }
-      if (!sonuc.data.length) { tbody.innerHTML = `<tr><td colspan="7">KayÄ±tlÄ± rezervasyon yok.</td></tr>`; return; }
+      if (!sonuc.data.length) { tbody.innerHTML = `<tr><td colspan="7">Kayıtlı rezervasyon yok.</td></tr>`; return; }
       const simdi = new Date();
       tbody.innerHTML = sonuc.data.map(r => {
         const sonGecti = new Date(String(r.rezervasyon_son).replace(' ', 'T')) <= simdi;
@@ -460,7 +536,7 @@
                       <td>${(r.porsiyon || 'tam') === 'yarim' ? 'Yarım' : 'Tam'}</td>
           <td>${Number(r.ucret).toFixed(2)} TL</td>
             <td>${r.rezervasyon_son}</td>
-            <td><button class="tehlike" ${iptalEdilebilir ? '' : 'disabled'} onclick="rezervasyonIptal(${r.rezervasyon_id})">Ä°ptal Et</button></td>
+            <td><button class="tehlike" ${iptalEdilebilir ? '' : 'disabled'} onclick="rezervasyonIptal(${r.rezervasyon_id})">İptal Et</button></td>
           </tr>
         `;
       }).join('');
@@ -472,13 +548,14 @@
         method: 'POST',
         body: JSON.stringify({ kullanici_id: DURUM.kullanici.id, rezervasyon_id: rezId })
       });
-      if (!sonuc.success) { mesajGoster(sonuc.message || 'Ä°ptal edilemedi.', 'hata'); return; }
+      if (!sonuc.success) { mesajGoster(sonuc.message || 'İptal edilemedi.', 'hata'); return; }
       if (sonuc.guncel_bakiye !== undefined && sonuc.guncel_bakiye !== null) bakiyeGuncelleEkranda(sonuc.guncel_bakiye);
       mesajGoster(sonuc.message, 'ok');
       rezervasyonlarimiGetir();
     }
 
     async function bakiyeSayfasiniYukle() {
+      await kullaniciAlerjenleriniYukle();
       const sonuc = await apiIstek(`/api/bakiye?kullanici_id=${DURUM.kullanici.id}&anlik=1`);
       if (!sonuc.success) return;
       bakiyeGuncelleEkranda(sonuc.bakiye);
@@ -501,7 +578,7 @@
         method: 'POST',
         body: JSON.stringify({ kullanici_id: DURUM.kullanici.id, tutar })
       });
-      if (!sonuc.success) { mesajGoster(sonuc.message || 'Bakiye yÃ¼klenemedi.', 'hata'); return; }
+      if (!sonuc.success) { mesajGoster(sonuc.message || 'Bakiye yüklenemedi.', 'hata'); return; }
       bakiyeGuncelleEkranda(sonuc.guncel_bakiye);
       document.getElementById('yukleme-tutar').value = '';
       mesajGoster(sonuc.message, 'ok');
@@ -516,7 +593,7 @@
       const liste = sonuc.data || [];
       sec.innerHTML = liste.length
         ? liste.map(m => `<option value="${m.menu_id}">${m.tarih} - ${m.yemekhane} (${m.ogun})</option>`).join('')
-        : `<option value="">DeÄŸerlendirilebilir kullanÄ±lmÄ±ÅŸ menÃ¼ yok</option>`;
+        : `<option value="">Değerlendirilebilir kullanılmış menü yok</option>`;
       tbody.innerHTML = liste.map(m => `
         <tr>
           <td>${m.tarih}</td>
@@ -525,7 +602,7 @@
           <td>${m.mevcut_puan ?? '-'}</td>
           <td>${m.mevcut_yorum ?? '-'}</td>
         </tr>
-      `).join('') || `<tr><td colspan="5">KullanÄ±lmÄ±ÅŸ menÃ¼ kaydÄ± yok.</td></tr>`;
+      `).join('') || `<tr><td colspan="5">Kullanılmış menü kaydı yok.</td></tr>`;
     }
 
     async function degerlendirmeGonder(e) {
@@ -538,7 +615,7 @@
         method: 'POST',
         body: JSON.stringify({ kullanici_id: DURUM.kullanici.id, menu_id, puan, yorum })
       });
-      if (!sonuc.success) { mesajGoster(sonuc.message || 'DeÄŸerlendirme kaydedilemedi.', 'hata'); return; }
+      if (!sonuc.success) { mesajGoster(sonuc.message || 'Değerlendirme kaydedilemedi.', 'hata'); return; }
       document.getElementById('deg-yorum').value = '';
       mesajGoster(sonuc.message, 'ok');
       degerlendirmeleriYukle();
@@ -580,8 +657,8 @@
         method: 'POST',
         body: JSON.stringify(govde)
       });
-      if (!sonuc.success) { mesajGoster(sonuc.message || 'MenÃ¼ kaydedilemedi.', 'hata'); return; }
-      mesajGoster(`${sonuc.message} (MenÃ¼ ID: ${sonuc.menu_id})`, 'ok');
+      if (!sonuc.success) { mesajGoster(sonuc.message || 'Menü kaydedilemedi.', 'hata'); return; }
+      mesajGoster(`${sonuc.message} (Menü ID: ${sonuc.menu_id})`, 'ok');
       yoneticiRaporlariniYukle();
     }
 

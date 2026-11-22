@@ -20,23 +20,71 @@
   <h1>Yemekhane Otomasyonu - Dönem Ödevi Raporu</h1>
 
   <h2>1. Seçilen Mimari Yolu ve İstek Akışı</h2>
-  <p>Bu projede <strong>Web API + arayüz</strong> yaklaşımı seçilmiştir[cite: 2]. Backend API yalnızca JSON üretir; HTML5 + CSS3 arayüz <code>frontend</code> container'ında sunulur ve tarayıcı veriyi JavaScript <code>fetch</code> ile alır; Apache ise <code>/api/</code> isteklerini PHP 8.2 tabanlı <code>uygulama</code> servisine yönlendirir[cite: 2].</p>
-  <p><strong>İstek Akışı Örneği (<code>POST /api/rezervasyon</code>):</strong> İstemci <code>fetch('/api/rezervasyon', { method: 'POST', ... })</code> ile isteği gönderir[cite: 2]. Apache <code>/api/</code> kuralıyla isteği <code>uygulama/index.php</code> dosyasına iletir[cite: 2]. <code>index.php</code> çağrıyı <code>Kontrolcu::yonlendir()</code> metoduna aktarır[cite: 2]. Kontrolcü oturum ve <code>menu_id</code> / <code>porsiyon</code> parametrelerini doğrulayıp <code>ServisKatmani::rezervasyonYap()</code> iş kuralını çağırır; servis katmanı da <code>VeriKatmani::spRezervasyonYap()</code> üzerinden <code>mysql-primary</code> üzerinde <code>sp_rezervasyon_yap</code> yordamını çalıştırır ve güncel bakiyeyi okuyarak JSON yanıtını istemciye döndürür[cite: 2].</p>
+  <p>Bu projede <strong>Web API + arayüz</strong> yaklaşımı seçilmiştir. Backend API yalnızca JSON üretir; HTML5 + CSS3 arayüz <code>frontend</code> container'ında sunulur ve tarayıcı veriyi JavaScript <code>fetch</code> ile alır; Apache ise <code>/api/</code> isteklerini PHP 8.2 tabanlı <code>uygulama</code> servisine yönlendirir.</p>
+  <p><strong>İstek Akışı Örneği (<code>POST /api/rezervasyon</code>):</strong> İstemci <code>fetch('/api/rezervasyon', { method: 'POST', ... })</code> ile isteği gönderir. Apache <code>/api/</code> kuralıyla isteği <code>uygulama/index.php</code> dosyasına iletir. <code>index.php</code> çağrıyı <code>Kontrolcu::yonlendir()</code> metoduna aktarır. Kontrolcü oturum ve <code>menu_id</code> / <code>porsiyon</code> parametrelerini doğrulayıp <code>ServisKatmani::rezervasyonYap()</code> iş kuralını çağırır; servis katmanı da <code>VeriKatmani::spRezervasyonYap()</code> üzerinden <code>mysql-primary</code> üzerinde <code>sp_rezervasyon_yap</code> yordamını çalıştırır ve güncel bakiyeyi okuyarak JSON yanıtını istemciye döndürür.</p>
 
   <h2>2. Aşama 1: Altyapı ve Replikasyon</h2>
   <ul>
-    <li><code>docker compose ps</code> çıktısında tüm servislerin (<code>mysql-primary</code>, <code>mysql-replica</code>, <code>redis</code>, <code>uygulama</code>, <code>frontend</code>) sağlıklı (<code>healthy</code>) olduğu ve <code>replica-setup</code> container'ının kurulumu tamamlayıp başarıyla çıktığı doğrulanmıştır[cite: 2].</li>
-    <li>Kaynak sunucuda (<code>mysql-primary</code>) <code>sp_bakiye_yukle</code> ile yapılan bakiye yüklemesinin replika sunucuya (<code>mysql-replica</code>) aktarıldığı teyit edilmiştir[cite: 2].</li>
-    <li>Replikaya doğrudan yazma denemesi salt okunur (<code>read-only</code>) kısıtı nedeniyle reddedilmiştir[cite: 2].</li>
-    <li>Replika container durdurulup yeniden başlatıldığında kesinti süresince oluşan değişiklikleri yakaladığı doğrulanmıştır[cite: 2].</li>
+    <li><code>docker compose ps</code> çıktısında tüm servislerin (<code>mysql-primary</code>, <code>mysql-replica</code>, <code>redis</code>, <code>uygulama</code>, <code>frontend</code>) sağlıklı (<code>healthy</code>) olduğu ve <code>replica-setup</code> container'ının kurulumu tamamlayıp başarıyla çıktığı doğrulanmıştır.</li>
+    <li>Kaynak sunucuda (<code>mysql-primary</code>) <code>sp_bakiye_yukle</code> ile yapılan bakiye yüklemesinin replika sunucuya (<code>mysql-replica</code>) aktarıldığı teyit edilmiştir.</li>
+    <li>Replikaya doğrudan yazma denemesi salt okunur (<code>read-only</code>) kısıtı nedeniyle reddedilmiştir.</li>
+    <li>Replika container durdurulup yeniden başlatıldığında kesinti süresince oluşan değişiklikleri yakaladığı doğrulanmıştır.</li>
   </ul>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:14px 0 22px 0;">
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/docker_ps.png" alt="Docker Servis Durumu" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 1.1: Docker Compose servislerinin sağlıklı (healthy) çalışma durumu</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/replikasyon_test.png" alt="Replikasyon Testi" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 1.2: Primary-Replica veri aktarımı ve read-only doğrulaması</figcaption>
+    </figure>
+  </div>
 
   <h2>3. Aşama 2: Uygulama Katmanı, 7 Ekran ve Replikasyon Kuralı</h2>
   <ul>
-    <li>Arayüzde 7 ekranın tamamı oluşturulmuştur: (1) Giriş ve çıkış (e-posta + şifre, <code>bcrypt</code> doğrulaması), (2) Günün menüsü (yemekhane/öğün seçimi, yemekler, toplam kalori, vejetaryen ve alerjen bilgisi), (3) Haftalık menü ve rezervasyon (boş yer sayısı, role göre fiyat, son saat kontrolü), (4) Rezervasyonlarım (aktif, kullanıldı, iptal durumları ve iptal işlemi), (5) Bakiye (güncel bakiye, hareket geçmişi, bakiye yükleme), (6) Değerlendirme (kullanılmış menüye 1-5 puan ve yorum) ve (7) Yönetici paneli (menü oluşturma/düzenleme, doluluk ve ortalama puan)[cite: 2].</li>
-    <li>Yazma işlemleri kaynak sunucuya (<code>mysql-primary</code>), listeleme ve raporlar replikaya (<code>mysql-replica</code>) yönlendirilmiş; arayüz ~400 px telefon genişliğinde kullanılabilir şekilde tasarlanmıştır[cite: 2].</li>
-    <li><strong>Rezervasyondan Hemen Sonra Bakiyenin Kaynaktan Okunma Nedeni:</strong> Asenkron replikasyonda kaynak sunucuda (<code>mysql-primary</code>) commit edilen bakiye düşümü, ağ veya replika uygulama gecikmesi nedeniyle milisaniyeler içinde replikaya (<code>mysql-replica</code>) henüz yansımamış olabilir. Rezervasyon veya bakiye işleminden hemen sonra okuma replikadan yapılırsa kullanıcı eski bakiyeyi görebilir; bu nedenle işlem sonrası anlık bakiye doğrudan kaynak sunucudan okunur[cite: 2].</li>
+    <li>Arayüzde 7 ekranın tamamı oluşturulmuştur: (1) Giriş ve çıkış (e-posta + şifre, <code>bcrypt</code> doğrulaması), (2) Günün menüsü (yemekhane/öğün seçimi, yemekler, toplam kalori, vejetaryen ve alerjen bilgisi), (3) Haftalık menü ve rezervasyon (boş yer sayısı, role göre fiyat, son saat kontrolü), (4) Rezervasyonlarım (aktif, kullanıldı, iptal durumları ve iptal işlemi), (5) Bakiye (güncel bakiye, hareket geçmişi, bakiye yükleme), (6) Değerlendirme (kullanılmış menüye 1-5 puan ve yorum) ve (7) Yönetici paneli (menü oluşturma/düzenleme, doluluk ve ortalama puan).</li>
+    <li>Yazma işlemleri kaynak sunucuya (<code>mysql-primary</code>), listeleme ve raporlar replikaya (<code>mysql-replica</code>) yönlendirilmiş; arayüz ~400 px telefon genişliğinde kullanılabilir şekilde tasarlanmıştır.</li>
+    <li><strong>Rezervasyondan Hemen Sonra Bakiyenin Kaynaktan Okunma Nedeni:</strong> Asenkron replikasyonda kaynak sunucuda (<code>mysql-primary</code>) commit edilen bakiye düşümü, ağ veya replika uygulama gecikmesi nedeniyle milisaniyeler içinde replikaya (<code>mysql-replica</code>) henüz yansımamış olabilir. Rezervasyon veya bakiye işleminden hemen sonra okuma replikadan yapılırsa kullanıcı eski bakiyeyi görebilir; bu nedenle işlem sonrası anlık bakiye doğrudan kaynak sunucudan okunur.</li>
   </ul>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0 22px 0;">
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/giris_oturum_ekrani.png" alt="Giriş Ekranı" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.1: Kullanıcı giriş ve oturum açma ekranı</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/gunun_menusu.png" alt="Günün Menüsü" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.2: Günün menüsü, kalori ve alerjen etiketleri</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/haftalikmenu_rezervasyon.png" alt="Haftalık Menü ve Rezervasyon" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.3: Haftalık menü ve rezervasyon ekranı</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/rezervasyonlar.png" alt="Rezervasyonlarım" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.4: Aktif/geçmiş rezervasyonlar ve iptal işlemi</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/bakiye.png" alt="Bakiye İşlemleri" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.5: Bakiye yükleme ve hareket geçmişi</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/degerlendirme.png" alt="Değerlendirme Ekranı" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.6: Kullanılmış menü puanlama ve yorum ekranı</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/yonetici_panel.png" alt="Yönetici Paneli" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.7: Yönetici paneli menü yönetimi ve raporlar</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/menu_telefon_gorunumu.png" alt="Mobil Menü Görünümü" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.8: Mobil (~400 px) menü ekranı görünümü</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/yoneticipaneli_telefon_gorunumu.png" alt="Mobil Yönetici Görünümü" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 2.9: Mobil (~400 px) yönetici paneli görünümü</figcaption>
+    </figure>
+  </div>
 
   <h2>4. Aşama 3: Redis Oturum ve Menü Önbelleği</h2>
   <table>
@@ -49,18 +97,42 @@
     </tbody>
   </table>
   <ul>
-    <li>İlk menü isteğinde veri veritabanından okunup Redis'e yazılır; sonraki isteklerde Redis'ten karşılanır ve kaynak bilgisi uygulama günlüğüne (<code>error_log</code>) yazılır[cite: 1].</li>
-    <li>Menü güncellendiğinde ilgili <code>menu:{yemekhane_id}:{tarih}:{ogun_id}</code> anahtarı silinir ve arayüz güncel menüyü gösterir[cite: 1].</li>
-    <li><code>uygulama</code> container'ı yeniden başlasa dahi oturumlar Redis üzerinde tutulduğu için kullanıcı oturumu düşmez[cite: 1].</li>
+    <li>İlk menü isteğinde veri veritabanından okunup Redis'e yazılır; sonraki isteklerde Redis'ten karşılanır ve kaynak bilgisi uygulama günlüğüne (<code>error_log</code>) yazılır.</li>
+    <li>Menü güncellendiğinde ilgili <code>menu:{yemekhane_id}:{tarih}:{ogun_id}</code> anahtarı silinir ve arayüz güncel menüyü gösterir.</li>
+    <li><code>uygulama</code> container'ı yeniden başlasa dahi oturumlar Redis üzerinde tutulduğu için kullanıcı oturumu düşmez.</li>
   </ul>
+  <div style="margin:14px 0 22px 0;max-width:680px;">
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/redis_oturum_test.png" alt="Redis Oturum ve Önbellek Testi" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 3.1: Redis oturum anahtarları ve menü önbelleği doğrulaması</figcaption>
+    </figure>
+  </div>
 
   <h2>5. Aşama 4: Değişiklik Talebi (Yarım Porsiyon ve Alerjen Uyarısı)</h2>
   <ul>
-    <li><strong>Yarım Porsiyon:</strong> Öğle ve akşam menülerinde yarım porsiyon seçilebilir; ücret tam fiyatın %60'ıdır[cite: 1]. Kahvaltıda yarım porsiyon yoktur ve geçmiş/mevcut kayıtlar varsayılan olarak tam porsiyon sayılır[cite: 1]. <code>sp_rezervasyon_yap</code> yordamı porsiyon ve %60 ücret kuralını destekleyecek şekilde güncellenmiştir[cite: 1].</li>
-    <li><strong>Alerjen Uyarısı:</strong> Kullanıcı alerjen tercihlerini <code>kullanici_alerjenleri</code> tablosuna kaydedebilir ve menüde bu alerjenleri içeren yemekler uyarıyla gösterilir[cite: 1].</li>
-    <li><strong>Migration ve Replika Doğrulaması:</strong> Tüm veritabanı değişiklikleri tek bir <code>db/init/04_degisiklik.sql</code> dosyasında toplanmış, Redis'teki eski menü anahtarları temizlenmiş ve <code>rezervasyonlar</code> + <code>kullanici_alerjenleri</code> tablolarının replikaya geçtiği <code>SHOW CREATE TABLE</code> ile doğrulanmıştır[cite: 1].</li>
+    <li><strong>Yarım Porsiyon:</strong> Öğle ve akşam menülerinde yarım porsiyon seçilebilir; ücret tam fiyatın %60'ıdır. Kahvaltıda yarım porsiyon yoktur ve geçmiş/mevcut kayıtlar varsayılan olarak tam porsiyon sayılır. <code>sp_rezervasyon_yap</code> yordamı porsiyon ve %60 ücret kuralını destekleyecek şekilde güncellenmiştir.</li>
+    <li><strong>Alerjen Uyarısı:</strong> Kullanıcı alerjen tercihlerini <code>kullanici_alerjenleri</code> tablosuna kaydedebilir ve menüde bu alerjenleri içeren yemekler uyarıyla gösterilir.</li>
+    <li><strong>Migration ve Replika Doğrulaması:</strong> Tüm veritabanı değişiklikleri tek bir <code>db/init/04_degisiklik.sql</code> dosyasında toplanmış, Redis'teki eski menü anahtarları temizlenmiş ve <code>rezervasyonlar</code> + <code>kullanici_alerjenleri</code> tablolarının replikaya geçtiği <code>SHOW CREATE TABLE</code> ile doğrulanmıştır.</li>
   </ul>
   <pre>rezervasyonlar -> porsiyon enum('tam','yarim') NOT NULL DEFAULT 'tam'
 kullanici_alerjenleri -> PRIMARY KEY (kullanici_id, alerjen_id)</pre>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:14px 0 22px 0;">
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/yarim_porsiyon.png" alt="Yarım Porsiyon Seçimi" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 4.1: Öğle/akşam menülerinde yarım porsiyon (%60) seçimi ve fiyat hesaplaması</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/alerjen_uyari.png" alt="Alerjen Uyarısı" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 4.2: Kullanıcı alerjen tercihine göre menüde gösterilen alerjen uyarısı</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/replica_schema.png" alt="Replika Şema Doğrulaması 1" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 4.3: Replika sunucuda tabloların ve şema yapısının doğrulanması</figcaption>
+    </figure>
+    <figure style="margin:0;page-break-inside:avoid;">
+      <img src="ekranlar/replica_schema2.png" alt="Replika Şema Doğrulaması 2" style="width:100%;height:auto;border:1px solid #d1d5db;border-radius:6px;">
+      <figcaption style="font-size:0.85rem;color:#374151;margin-top:4px;">Şekil 4.4: Replika üzerinde porsiyon ve kullanıcı alerjenleri tablo detayları</figcaption>
+    </figure>
+  </div>
 </body>
 </html>
